@@ -23,6 +23,22 @@
     </form>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <!-- Netlify Identity widget on root: required for invite acceptance/password creation -->
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <script>
+      (function () {
+        if (!window.netlifyIdentity) return;
+        // If arriving via invite/confirmation link, open the widget
+        var hasInvite = /invite_token|confirmation_token|recovery_token/.test(location.href);
+        if (hasInvite) {
+          try { window.netlifyIdentity.open('signup'); } catch (_) { /* noop */ }
+        }
+        // After login, go to CMS
+        window.netlifyIdentity.on('login', function () {
+          try { document.location.href = '/admin/'; } catch (_) { /* noop */ }
+        });
+      })();
+    </script>
     <script>
       // smooth scroll for in-page anchors
       document.addEventListener('click', (e) => {
