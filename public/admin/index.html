@@ -9,12 +9,11 @@
   <body>
     <!-- Netlify Identity widget for login -->
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-    <!-- Decap CMS main bundle -->
+    <!-- Decap CMS main bundle (manual init to avoid double-init issues) -->
+    <script>window.CMS_MANUAL_INIT = true;</script>
     <script src="https://unpkg.com/decap-cms@^3.8.4/dist/decap-cms.js"></script>
     <script>
-      if (window.CMS) {
-        window.CMS.init({ configPath: '/admin/config.yml' });
-      }
+      if (window.CMS) window.CMS.init({ configPath: '/admin/config.yml' });
       if (window.netlifyIdentity) {
         window.netlifyIdentity.on('init', (user) => {
           if (!user) {
