@@ -11,9 +11,13 @@
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <!-- Decap CMS main bundle (manual init to avoid double-init issues) -->
     <script>window.CMS_MANUAL_INIT = true;</script>
-    <script src="https://unpkg.com/decap-cms@^3.8.4/dist/decap-cms.js"></script>
+    <!-- Pin to a known-stable version to avoid transient upstream regressions -->
+    <script src="https://unpkg.com/decap-cms@3.7.1/dist/decap-cms.js"></script>
     <script>
-      if (window.CMS) window.CMS.init({ configPath: '/admin/config.yml' });
+      // Delay init until the page is fully loaded to avoid DOM detach race conditions
+      window.addEventListener('load', function () {
+        if (window.CMS) window.CMS.init({ configPath: '/admin/config.yml' });
+      });
       if (window.netlifyIdentity) {
         window.netlifyIdentity.on('init', (user) => {
           if (!user) {
