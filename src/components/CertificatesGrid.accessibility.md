@@ -1,0 +1,3 @@
+- Certificates cards use semantic article tags
+- Images have alt text and lazy loading
+- Links are keyboard focusable

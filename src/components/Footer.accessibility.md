@@ -1,0 +1,2 @@
+- Links have accessible names via aria-label or text
+- Color contrast meets WCAG AA for dark background

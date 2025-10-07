@@ -1,0 +1,2 @@
+- Project cards are buttons for keyboard activation
+- Modal is focusable and dismissible via overlay button

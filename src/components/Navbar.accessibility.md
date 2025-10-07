@@ -1,0 +1,2 @@
+- Mobile menu button has aria-expanded and aria-label
+- Active section link gets visual highlight

@@ -1,0 +1,132 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "public/images"
+public_folder: "/images"
+
+collections:
+  - name: "about"
+    label: "About"
+    folder: "src/data/about"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Name", name: "name", widget: "string" }
+      - { label: "Tagline", name: "tagline", widget: "string" }
+      - { label: "Short Bio", name: "bio", widget: "text" }
+      - { label: "Photo", name: "photo", widget: "image" }
+      - { label: "Resume", name: "resume", widget: "file" }
+  - name: "projects"
+    label: "Projects"
+    folder: "src/data/projects"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Description", name: "description", widget: "markdown" }
+      - { label: "Short Summary", name: "summary", widget: "text" }
+      - { label: "Features", name: "features", widget: "list" }
+      - { label: "Tech Stack", name: "tech", widget: "list" }
+      - { label: "Image", name: "image", widget: "image" }
+      - { label: "Github Link", name: "github", widget: "string" }
+      - { label: "Live Demo", name: "demo", widget: "string" }
+      - { label: "Featured", name: "featured", widget: "boolean", default: false }
+      - { label: "Date", name: "date", widget: "datetime" }
+  - name: "certificates"
+    label: "Certificates"
+    folder: "src/data/certificates"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Issuer", name: "issuer", widget: "string" }
+      - { label: "Date", name: "date", widget: "date" }
+      - { label: "Image", name: "image", widget: "image" }
+      - { label: "Link", name: "link", widget: "string" }
+  - name: "hackathons"
+    label: "Hackathons"
+    folder: "src/data/hackathons"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Event", name: "event", widget: "string" }
+      - { label: "Role/Position", name: "position", widget: "string" }
+      - { label: "Result", name: "result", widget: "string" }
+      - { label: "Description", name: "description", widget: "text" }
+      - { label: "Certificate", name: "certificate", widget: "image" }
+      - { label: "Date", name: "date", widget: "date" }
+  - name: "skills"
+    label: "Skills"
+    folder: "src/data/skills"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Name", name: "name", widget: "string" }
+      - { label: "Category", name: "category", widget: "string" }
+      - { label: "Level", name: "level", widget: "select", options: ["Beginner","Intermediate","Advanced","Expert"] }
+      - { label: "Proficiency", name: "proficiency", widget: "number", min: 0, max: 100, step: 1 }
+  - name: "education"
+    label: "Education"
+    folder: "src/data/education"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Institution", name: "institution", widget: "string" }
+      - { label: "Degree", name: "degree", widget: "string" }
+      - { label: "Start Date", name: "start", widget: "date" }
+      - { label: "End Date", name: "end", widget: "date" }
+      - { label: "Description", name: "description", widget: "text" }
+  - name: "tools"
+    label: "Tools"
+    folder: "src/data/tools"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Name", name: "name", widget: "string" }
+      - { label: "Category", name: "category", widget: "string" }
+      - { label: "Description", name: "description", widget: "text", required: false }
+      - { label: "Link", name: "link", widget: "string", required: false }
+  - name: "contributions"
+    label: "Open Source Contributions"
+    folder: "src/data/contributions"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Repo", name: "repo", widget: "string" }
+      - { label: "Role", name: "role", widget: "string" }
+      - { label: "Description", name: "description", widget: "text" }
+      - { label: "Link", name: "link", widget: "string" }
+  - name: "research"
+    label: "Research / Publications"
+    folder: "src/data/research"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Abstract", name: "abstract", widget: "text" }
+      - { label: "Authors", name: "authors", widget: "list" }
+      - { label: "Published In", name: "venue", widget: "string" }
+      - { label: "PDF/Link", name: "link", widget: "string" }
+  - name: "volunteer"
+    label: "Volunteer Work"
+    folder: "src/data/volunteer"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Organization", name: "organization", widget: "string" }
+      - { label: "Role", name: "role", widget: "string" }
+      - { label: "Start Date", name: "start", widget: "date" }
+      - { label: "End Date", name: "end", widget: "date", required: false }
+      - { label: "Description", name: "description", widget: "text" }
+  - name: "socials"
+    label: "Social Links"
+    files:
+      - file: "src/data/socials.json"
+        label: "Social Links"
+        name: "socials"
+        fields:
+          - { label: "GitHub", name: "github", widget: "string" }
+          - { label: "LinkedIn", name: "linkedin", widget: "string" }
+          - { label: "Twitter", name: "twitter", widget: "string" }
+          - { label: "Email", name: "email", widget: "string" }

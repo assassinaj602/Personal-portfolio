@@ -1,0 +1,21 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[[plugins]]
+  package = "@netlify/plugin-lighthouse"
+  # optional: only runs on deploy previews/production
+
+[[redirects]]
+  from = "/admin"
+  to = "/admin/"
+  status = 301
+
+# Netlify Forms handling; honeypot field named 'bot-field'
+[[headers]]
+  for = "/**"
+  [headers.values]
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "SAMEORIGIN"
+    X-XSS-Protection = "0"

@@ -1,0 +1,11 @@
+# dependencies
+node_modules/
+
+# builds
+dist/
+*.log
+.vite/
+
+# editor
+.vscode/
+.DS_Store
