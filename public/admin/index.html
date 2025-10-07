@@ -7,17 +7,18 @@
     <link rel="icon" href="/favicon.ico" />
   </head>
   <body>
-    <!-- Decap CMS mounts here -->
+    <!-- Netlify Identity widget for login -->
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-  <script src="https://unpkg.com/decap-cms-app@^3.8.4/dist/decap-cms-app.js"></script>
+    <!-- Decap CMS main bundle -->
+    <script src="https://unpkg.com/decap-cms@^3.8.4/dist/decap-cms.js"></script>
     <script>
-      window.CMS && window.CMS.init({ configPath: '/admin/config.yml' });
+      if (window.CMS) {
+        window.CMS.init({ configPath: '/admin/config.yml' });
+      }
       if (window.netlifyIdentity) {
         window.netlifyIdentity.on('init', (user) => {
           if (!user) {
-            window.netlifyIdentity.on('login', () => {
-              document.location.href = '/admin/';
-            });
+            window.netlifyIdentity.on('login', () => document.location.reload());
           }
         });
       }
