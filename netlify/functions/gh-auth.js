@@ -35,7 +35,9 @@ exports.handler = async (event) => {
   // Build our own redirect URI from headers to support both preview and custom domains
   const proto = (event.headers['x-forwarded-proto'] || 'https')
   const host = (event.headers['x-forwarded-host'] || event.headers.host)
-  const redirectUri = `${proto}://${host}/.netlify/functions/gh-auth`
+  const forcedBase = process.env.OAUTH_REDIRECT_BASE // e.g. https://portfolio-muhammad-assadullah.netlify.app
+  const base = forcedBase && forcedBase.trim() ? forcedBase.replace(/\/$/, '') : `${proto}://${host}`
+  const redirectUri = `${base}/.netlify/functions/gh-auth`
 
   if (!code) {
     // Initial step: redirect to GitHub authorize
