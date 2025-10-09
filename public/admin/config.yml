@@ -1,6 +1,9 @@
 backend:
-  name: git-gateway
+  name: github
+  repo: assassinaj602/Personal-portfolio
   branch: main
+  base_url: "/"                 # served from same origin
+  auth_endpoint: "/.netlify/functions/gh-auth"
 
 media_folder: "public/images"
 public_folder: "/images"
