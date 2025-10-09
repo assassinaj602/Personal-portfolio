@@ -39,12 +39,32 @@ exports.handler = async (event) => {
   const base = forcedBase && forcedBase.trim() ? forcedBase.replace(/\/$/, '') : `${proto}://${host}`
   const redirectUri = `${base}/.netlify/functions/gh-auth`
 
+  if (qs.debug === '1') {
+    const scope = (process.env.GH_SCOPE && process.env.GH_SCOPE.trim()) || 'repo'
+    const debugAuth = new URL(AUTH_URL)
+    debugAuth.searchParams.set('client_id', clientId || '')
+    debugAuth.searchParams.set('scope', scope)
+    return {
+      statusCode: 200,
+      headers: { 'Content-Type': 'text/html' },
+      body: `<!doctype html><html><body style="font-family:system-ui;padding:16px;">
+        <h1>GitHub OAuth Debug</h1>
+        <p><strong>Computed base</strong>: ${base}</p>
+        <p><strong>redirectUri</strong>: ${redirectUri}</p>
+        <p><strong>x-forwarded-host</strong>: ${event.headers['x-forwarded-host'] || ''}</p>
+        <p><strong>host</strong>: ${event.headers.host || ''}</p>
+        <p><strong>client_id</strong>: ${(clientId || '').slice(0,4)}…</p>
+        <p><strong>scope</strong>: ${scope}</p>
+        <p><a href="${debugAuth.toString()}">Begin OAuth on GitHub</a> (no redirect_uri parameter included)</p>
+      </body></html>`
+    }
+  }
+
   if (!code) {
-    // Initial step: redirect to GitHub authorize
-    const scope = 'repo' // use 'public_repo' if your repo is public only
+    // Initial step: redirect to GitHub authorize. Omit redirect_uri so GitHub uses the app’s configured callback.
+    const scope = (process.env.GH_SCOPE && process.env.GH_SCOPE.trim()) || 'repo'
     const url = new URL(AUTH_URL)
     url.searchParams.set('client_id', clientId)
-    url.searchParams.set('redirect_uri', redirectUri)
     url.searchParams.set('scope', scope)
     return { statusCode: 302, headers: { Location: url.toString() } }
   }
@@ -54,7 +74,8 @@ exports.handler = async (event) => {
     const resp = await fetch(TOKEN_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({ client_id: clientId, client_secret: clientSecret, code, redirect_uri: redirectUri }),
+  // Omit redirect_uri here as well; GitHub will validate against the app’s configured callback
+  body: JSON.stringify({ client_id: clientId, client_secret: clientSecret, code }),
     })
     const data = await resp.json()
     if (data.error || !data.access_token) {
