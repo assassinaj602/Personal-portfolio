@@ -8,7 +8,8 @@ const TOKEN_URL = 'https://github.com/login/oauth/access_token'
 function htmlMessage(type, payload, base) {
   const msg = `authorization:github:${type}:${JSON.stringify(payload)}`
   const safeBase = (base || '').replace(/\/$/, '')
-  const adminUrl = `${safeBase}/admin/#${encodeURIComponent(msg)}`
+  // Provide raw message in hash so Decap can parse it directly
+  const adminUrl = `${safeBase}/admin/#${msg}`
   return `<!doctype html><html><body><script>
     (function(){
       try {

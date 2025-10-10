@@ -14,6 +14,21 @@
     <script>
       // Delay init until the page is fully loaded to avoid DOM detach race conditions
       window.addEventListener('load', function () {
+        try {
+          // If the OAuth function redirected back without a popup, it appends a hash like
+          // #authorization:github:success:{"token":"..."}
+          if (location.hash && location.hash.startsWith('#authorization:github:')) {
+            // Forward to the CMS app as if it came from postMessage
+            if (window.parent && window.parent !== window && window.parent.postMessage) {
+              window.parent.postMessage(location.hash.slice(1), '*');
+            } else if (window.postMessage) {
+              window.postMessage(location.hash.slice(1), '*');
+            }
+            // Clear the hash to avoid re-processing on reload
+            history.replaceState(null, '', location.pathname);
+          }
+        } catch (_) {}
+
         if (window.CMS) window.CMS.init({ configPath: '/admin/config.yml' });
       });
     </script>
