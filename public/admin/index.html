@@ -54,14 +54,22 @@
           var msg = null;
           try { msg = sessionStorage.getItem('decap-cms-oauth'); } catch (_) {}
           if (msg) {
-            try { window.postMessage(msg, '*'); } catch (_) {}
+            try {
+              // Synthetic MessageEvent for robustness (some builds listen on window message explicitly)
+              var evt;
+              try {
+                evt = new MessageEvent('message', { data: msg, origin: location.origin });
+                window.dispatchEvent(evt);
+              } catch (_) {}
+              window.postMessage(msg, '*');
+            } catch (_) {}
             try { sessionStorage.removeItem('decap-cms-oauth'); } catch (_) {}
             return; // done
           }
           if (retries > 0) {
-            setTimeout(function(){ repostOAuthMessage(retries - 1); }, 150);
+            setTimeout(function(){ repostOAuthMessage(retries - 1); }, 200);
           }
-        })(20); // retry for ~3 seconds
+        })(40); // retry for ~8 seconds
       });
     </script>
   </body>
