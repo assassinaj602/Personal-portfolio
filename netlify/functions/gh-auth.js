@@ -11,13 +11,22 @@ function htmlMessage(type, payload, base) {
   // Provide raw message in hash so Decap can parse it directly
   const adminUrl = `${safeBase}/admin/#${msg}`
   let targetOrigin = '*'
-  try { targetOrigin = new URL(safeBase).origin } catch (_) {}
+  try { 
+    targetOrigin = new URL(safeBase).origin 
+  } catch {
+    // Ignore parsing errors, use default '*'
+  }
   return `<!doctype html><html><body><script>
     (function(){
       try {
         if (window.opener && window.opener.postMessage) {
           window.opener.postMessage(${JSON.stringify(msg)}, ${JSON.stringify(targetOrigin)});
-          try { window.close(); } catch(_) {}
+          try { 
+            window.close(); 
+          } catch {
+            // Close may fail, redirect instead
+            window.location.replace(${JSON.stringify(adminUrl)});
+          }
         } else {
           // No opener (user initiated flow in same tab). Fallback: redirect to /admin with hash for Decap to parse.
           window.location.replace(${JSON.stringify(adminUrl)});
