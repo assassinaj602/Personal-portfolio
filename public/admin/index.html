@@ -9,6 +9,20 @@
   <body>
   <!-- Decap CMS main bundle (manual init to avoid double-init issues) -->
     <script>window.CMS_MANUAL_INIT = true;</script>
+    <!-- Capture OAuth hash ASAP before CMS/router may change it -->
+    <script>
+      (function () {
+        try {
+          if (location.hash && location.hash.startsWith('#authorization:github:')) {
+            sessionStorage.setItem('decap-cms-oauth', location.hash.slice(1));
+            // Normalize hash for decap router to avoid clobbering our message later
+            if (location.hash !== '#/') {
+              history.replaceState(null, '', location.pathname + (location.search || '') + '#/');
+            }
+          }
+        } catch (_) {}
+      })();
+    </script>
     <!-- Pin to a known-stable version to avoid transient upstream regressions -->
     <script src="https://unpkg.com/decap-cms@3.7.1/dist/decap-cms.js"></script>
     <script>
