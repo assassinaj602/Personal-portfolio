@@ -5,19 +5,23 @@
 const AUTH_URL = 'https://github.com/login/oauth/authorize'
 const TOKEN_URL = 'https://github.com/login/oauth/access_token'
 
-function htmlMessage(type, payload) {
+function htmlMessage(type, payload, base) {
   const msg = `authorization:github:${type}:${JSON.stringify(payload)}`
+  const safeBase = (base || '').replace(/\/$/, '')
+  const adminUrl = `${safeBase}/admin/#${encodeURIComponent(msg)}`
   return `<!doctype html><html><body><script>
     (function(){
       try {
         if (window.opener && window.opener.postMessage) {
           window.opener.postMessage(${JSON.stringify(msg)}, '*');
-          window.close();
+          try { window.close(); } catch(_) {}
         } else {
-          document.body.textContent = 'You can close this window.';
+          // No opener (user initiated flow in same tab). Fallback: redirect to /admin with hash for Decap to parse.
+          window.location.replace(${JSON.stringify(adminUrl)});
         }
       } catch (e) {
-        document.body.textContent = 'Authorized. You can close this window.';
+        // As last resort, navigate to admin with hash
+        window.location.replace(${JSON.stringify(adminUrl)});
       }
     })();
   </script></body></html>`
@@ -82,19 +86,19 @@ exports.handler = async (event) => {
       return {
         statusCode: 200,
         headers: { 'Content-Type': 'text/html', 'Cache-Control': 'no-store' },
-        body: htmlMessage('error', { message: data.error_description || 'OAuth exchange failed' })
+        body: htmlMessage('error', { message: data.error_description || 'OAuth exchange failed' }, base)
       }
     }
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'text/html', 'Cache-Control': 'no-store' },
-      body: htmlMessage('success', { token: data.access_token })
+      body: htmlMessage('success', { token: data.access_token }, base)
     }
   } catch (e) {
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'text/html', 'Cache-Control': 'no-store' },
-      body: htmlMessage('error', { message: e && e.message ? e.message : 'OAuth error' })
+      body: htmlMessage('error', { message: e && e.message ? e.message : 'OAuth error' }, base)
     }
   }
 }
