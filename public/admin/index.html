@@ -7,81 +7,13 @@
     <link rel="icon" href="/favicon.ico" />
   </head>
   <body>
-  <!-- Decap CMS main bundle (manual init to avoid double-init issues) -->
-    <script>window.CMS_MANUAL_INIT = true;</script>
-    <!-- Capture OAuth hash ASAP before CMS/router may change it -->
-    <script>
-      (function () {
-        try {
-          if (location.hash && location.hash.startsWith('#authorization:github:')) {
-            sessionStorage.setItem('decap-cms-oauth', location.hash.slice(1));
-            // Normalize hash for decap router to avoid clobbering our message later
-            if (location.hash !== '#/') {
-              history.replaceState(null, '', location.pathname + (location.search || '') + '#/');
-            }
-          }
-          // Also capture popup flow: function posts a message to opener
-          window.addEventListener('message', function (e) {
-            try {
-              if (typeof e.data === 'string' && e.data.startsWith('authorization:github:')) {
-                sessionStorage.setItem('decap-cms-oauth', e.data)
-              }
-            } catch (_) {}
-          }, false)
-        } catch (_) {}
-      })();
-    </script>
-    <!-- Pin to a known-stable version to avoid transient upstream regressions -->
+    <!-- Decap CMS bundle -->
     <script src="https://unpkg.com/decap-cms@3.7.1/dist/decap-cms.js"></script>
     <script>
-      // Delay init until the page is fully loaded to avoid DOM detach race conditions
-      window.addEventListener('load', function () {
-        try {
-          // If the OAuth function redirected back without a popup, it appends a hash like
-          // #authorization:github:success:{"token":"..."}
-          if (location.hash && location.hash.startsWith('#authorization:github:')) {
-            // Stash it so we can resend after CMS attaches its message listener
-            sessionStorage.setItem('decap-cms-oauth', location.hash.slice(1));
-            // Clear the hash to avoid re-processing on reload
-            history.replaceState(null, '', location.pathname);
-          }
-        } catch (_) {}
-
-        if (window.CMS) window.CMS.init({ configPath: '/admin/config.yml' });
-
-        // After init, re-post the stashed oauth message so CMS can consume it
-        // Wait a bit longer for CMS to attach listeners, then retry aggressively
-        setTimeout(function() {
-          (function repostOAuthMessage(retries) {
-            var msg = null;
-            try { msg = sessionStorage.getItem('decap-cms-oauth'); } catch (_) {}
-            if (msg) {
-              console.log('[Admin] Reposting OAuth message to CMS:', msg.slice(0, 60) + '...');
-              try {
-                // Post to window for CMS backend to consume
-                window.postMessage(msg, location.origin);
-                // Also try dispatching a synthetic event (some Decap builds check event.origin)
-                var evt = new MessageEvent('message', { 
-                  data: msg, 
-                  origin: location.origin,
-                  source: window
-                });
-                window.dispatchEvent(evt);
-              } catch (e) {
-                console.error('[Admin] Failed to post message:', e);
-              }
-              // Remove from storage after first successful post
-              try { sessionStorage.removeItem('decap-cms-oauth'); } catch (_) {}
-              return; // done
-            }
-            if (retries > 0) {
-              setTimeout(function(){ repostOAuthMessage(retries - 1); }, 100);
-            } else {
-              console.warn('[Admin] OAuth message not found in sessionStorage after retries.');
-            }
-          })(50); // 50 retries = ~5 seconds
-        }, 500); // Wait 500ms for CMS to be ready
-      });
+      // Initialize Decap CMS with config
+      if (window.CMS) {
+        window.CMS.init({ configPath: '/admin/config.yml' });
+      }
     </script>
   </body>
 </html>
