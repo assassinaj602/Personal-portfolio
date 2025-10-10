@@ -50,26 +50,37 @@
         if (window.CMS) window.CMS.init({ configPath: '/admin/config.yml' });
 
         // After init, re-post the stashed oauth message so CMS can consume it
-        (function repostOAuthMessage(retries) {
-          var msg = null;
-          try { msg = sessionStorage.getItem('decap-cms-oauth'); } catch (_) {}
-          if (msg) {
-            try {
-              // Synthetic MessageEvent for robustness (some builds listen on window message explicitly)
-              var evt;
+        // Wait a bit longer for CMS to attach listeners, then retry aggressively
+        setTimeout(function() {
+          (function repostOAuthMessage(retries) {
+            var msg = null;
+            try { msg = sessionStorage.getItem('decap-cms-oauth'); } catch (_) {}
+            if (msg) {
+              console.log('[Admin] Reposting OAuth message to CMS:', msg.slice(0, 60) + '...');
               try {
-                evt = new MessageEvent('message', { data: msg, origin: location.origin });
+                // Post to window for CMS backend to consume
+                window.postMessage(msg, location.origin);
+                // Also try dispatching a synthetic event (some Decap builds check event.origin)
+                var evt = new MessageEvent('message', { 
+                  data: msg, 
+                  origin: location.origin,
+                  source: window
+                });
                 window.dispatchEvent(evt);
-              } catch (_) {}
-              window.postMessage(msg, '*');
-            } catch (_) {}
-            try { sessionStorage.removeItem('decap-cms-oauth'); } catch (_) {}
-            return; // done
-          }
-          if (retries > 0) {
-            setTimeout(function(){ repostOAuthMessage(retries - 1); }, 200);
-          }
-        })(40); // retry for ~8 seconds
+              } catch (e) {
+                console.error('[Admin] Failed to post message:', e);
+              }
+              // Remove from storage after first successful post
+              try { sessionStorage.removeItem('decap-cms-oauth'); } catch (_) {}
+              return; // done
+            }
+            if (retries > 0) {
+              setTimeout(function(){ repostOAuthMessage(retries - 1); }, 100);
+            } else {
+              console.warn('[Admin] OAuth message not found in sessionStorage after retries.');
+            }
+          })(50); // 50 retries = ~5 seconds
+        }, 500); // Wait 500ms for CMS to be ready
       });
     </script>
   </body>
