@@ -20,6 +20,14 @@
               history.replaceState(null, '', location.pathname + (location.search || '') + '#/');
             }
           }
+          // Also capture popup flow: function posts a message to opener
+          window.addEventListener('message', function (e) {
+            try {
+              if (typeof e.data === 'string' && e.data.startsWith('authorization:github:')) {
+                sessionStorage.setItem('decap-cms-oauth', e.data)
+              }
+            } catch (_) {}
+          }, false)
         } catch (_) {}
       })();
     </script>
